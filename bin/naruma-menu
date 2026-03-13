@@ -163,7 +163,7 @@ show_config_menu() {
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 show_main_menu() {
-    case $(menu "NaruMa" "  Apps\n  Install\n  System\n  Capture\n󰔎  Toggle\n  Config\n  Theme\n󰏓  Packages" 295) in
+    case $(menu "NaruMa" "󰀻  Apps\n󰮊  Install\n󰐥  System\n󰄀  Capture\n󰔎  Toggle\n󰒓  Config\n󰔌  Theme\n󰏓  Packages" 295) in
         *Apps*)     _launch_walker ;;
         *Install*)  naruma-apps ;;
         *System*)   show_system_menu ;;

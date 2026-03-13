@@ -15,7 +15,7 @@ symbols = 1
 [providers]
 max_results = 256
 default = [
-  "desktopapplications",
+  "applications",
   "websearch",
 ]
 

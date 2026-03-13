@@ -196,9 +196,10 @@ PACMAN_PKGS=(
 
 # AUR packages (require paru or yay)
 AUR_PKGS=(
-    walker-bin      # fast GTK4 app launcher (elephant data provider included)
-    grimblast-git   # screenshot helper (wraps grim+slurp)
-    lazydocker      # Docker TUI (referenced in keybindings)
+    walker-bin              # fast GTK4 app launcher (elephant data provider included)
+    grimblast-git           # screenshot helper (wraps grim+slurp)
+    lazydocker              # Docker TUI (referenced in keybindings)
+    xdg-terminal-exec-git   # open terminal commands from menus (naruma-menu, naruma-apps)
 )
 
 install_packages() {
