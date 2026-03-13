@@ -16,7 +16,7 @@ hyprland/       # Hyprland WM config (symlinked to ~/.config/hypr/)
   input.conf
   autostart.conf
   monitors.conf   # edit this per-machine
-  rules.conf      # window rules + opacity
+  rules.conf      # window rules + opacity (block syntax, requires Hyprland ≥ 0.53)
 waybar/           # status bar (config.jsonc + style.css)
 walker/           # GTK4 app launcher (config.toml + themes/naruma/)
 mako/             # notifications (config — symlinked from active theme)
@@ -41,6 +41,8 @@ bash install.sh              # install packages, copy bin/, symlink configs
 bash install.sh --no-packages  # skip pacman/AUR installs
 hyprctl reload               # apply after install
 ```
+
+On first install, a default wallpaper is downloaded to `~/.config/hypr/wallpaper`. Replace with any image at that path.
 
 Config files are symlinked from the repo — edit them in place and changes take effect immediately.
 
@@ -96,6 +98,7 @@ naruma-menu system    # lock/suspend/reboot/shutdown/logout
 naruma-menu capture   # screenshot / screen record
 naruma-menu toggle    # bar, nightlight, gaps, idle lock
 naruma-menu config    # open config files in $EDITOR
+naruma-menu packages  # install/search/upgrade/remove via paru or yay (also: aur)
 ```
 
 `bin/naruma-check` — pre-flight checker; validates symlinks, active theme, fonts, Hyprland version, and config errors after a live reload. Exit 0 = clean, 1 = errors:

@@ -109,6 +109,41 @@ _toggle_idle() {
     fi
 }
 
+# ── Packages / AUR ────────────────────────────────────────────────────────────
+_aur_helper() {
+    if command -v paru &>/dev/null; then echo paru
+    elif command -v yay &>/dev/null; then echo yay
+    else echo ""; fi
+}
+
+show_packages_menu() {
+    local aur
+    aur=$(_aur_helper)
+    if [[ -z $aur ]]; then
+        notify-send "NaruMa" "No AUR helper found — install paru or yay"
+        back_to show_main_menu
+        return
+    fi
+
+    case $(menu "Packages" "󰏓  Install\n󰩳  Search AUR\n󰁯  Upgrade all\n  Remove") in
+        *Install*)
+            local pkg
+            pkg=$(menu "Install package" "")
+            [[ -n $pkg ]] && xdg-terminal-exec -- sh -c "$aur -S --needed $pkg; echo; read -rp 'Press Enter to close'" ;;
+        *Search*)
+            local term
+            term=$(menu "Search AUR" "")
+            [[ -n $term ]] && xdg-terminal-exec -- sh -c "$aur -Ss '$term'; echo; read -rp 'Press Enter to close'" ;;
+        *Upgrade*)
+            xdg-terminal-exec -- sh -c "$aur -Syu; echo; read -rp 'Press Enter to close'" ;;
+        *Remove*)
+            local pkg
+            pkg=$(menu "Remove package" "")
+            [[ -n $pkg ]] && xdg-terminal-exec -- sh -c "$aur -Rns $pkg; echo; read -rp 'Press Enter to close'" ;;
+        *) back_to show_main_menu ;;
+    esac
+}
+
 # ── Config ────────────────────────────────────────────────────────────────────
 show_config_menu() {
     case $(menu "Config" "  Look & feel\n  Keybindings\n  Monitors\n  Input\n  Autostart\n  Window rules\n󰍜  Waybar\n  Mako\n  Hyprlock\n  Hypridle") in
@@ -128,13 +163,14 @@ show_config_menu() {
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 show_main_menu() {
-    case $(menu "NaruMa" "  Apps\n  System\n  Capture\n󰔎  Toggle\n  Config\n  Theme" 295) in
-        *Apps*)    _launch_walker ;;
-        *System*)  show_system_menu ;;
-        *Capture*) show_capture_menu ;;
-        *Toggle*)  show_toggle_menu ;;
-        *Config*)  show_config_menu ;;
-        *Theme*)   naruma-theme ;;
+    case $(menu "NaruMa" "  Apps\n  System\n  Capture\n󰔎  Toggle\n  Config\n  Theme\n󰏓  Packages" 295) in
+        *Apps*)     _launch_walker ;;
+        *System*)   show_system_menu ;;
+        *Capture*)  show_capture_menu ;;
+        *Toggle*)   show_toggle_menu ;;
+        *Config*)   show_config_menu ;;
+        *Theme*)    naruma-theme ;;
+        *Packages*) show_packages_menu ;;
     esac
 }
 
@@ -150,11 +186,12 @@ _launch_walker() {
 if [[ -n ${1:-} ]]; then
     BACK_TO_EXIT=true
     case "${1,,}" in
-        system)  show_system_menu ;;
-        capture) show_capture_menu ;;
-        toggle)  show_toggle_menu ;;
-        config)  show_config_menu ;;
-        *)       show_main_menu ;;
+        system)        show_system_menu ;;
+        capture)       show_capture_menu ;;
+        toggle)        show_toggle_menu ;;
+        config)        show_config_menu ;;
+        packages|aur)  show_packages_menu ;;
+        *)             show_main_menu ;;
     esac
 else
     show_main_menu
