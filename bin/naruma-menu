@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+# NaruMa system menu — inspired by omarchy-menu
+# Super + Alt + Space
+
+BACK_TO_EXIT=false
+
+# Use walker --dmenu if available, otherwise fall back to rofi
+menu() {
+    local prompt="$1"
+    local options="$2"
+    local width="${3:-320}"
+
+    if command -v walker &>/dev/null; then
+        echo -e "$options" | walker --dmenu \
+            --width "$width" --minheight 1 --maxheight 560 \
+            -p "${prompt}…" 2>/dev/null
+    else
+        echo -e "$options" | rofi -dmenu \
+            -p "${prompt}" \
+            -theme-str 'window { width: '"$width"'px; }' \
+            2>/dev/null
+    fi
+}
+
+back_to() {
+    local parent="$1"
+    if [[ $BACK_TO_EXIT == "true" ]]; then
+        exit 0
+    elif [[ -n $parent ]]; then
+        "$parent"
+    else
+        show_main_menu
+    fi
+}
+
+# ── System ────────────────────────────────────────────────────────────────────
+show_system_menu() {
+    local options="  Lock\n󰒲  Suspend\n󰜉  Reboot\n󰐥  Shutdown\n󰍃  Logout"
+    case $(menu "System" "$options") in
+        *Lock*)     hyprlock ;;
+        *Suspend*)  systemctl suspend ;;
+        *Reboot*)   systemctl reboot ;;
+        *Shutdown*) systemctl poweroff ;;
+        *Logout*)   hyprctl dispatch exit ;;
+        *)          back_to show_main_menu ;;
+    esac
+}
+
+# ── Capture ───────────────────────────────────────────────────────────────────
+show_capture_menu() {
+    case $(menu "Capture" "  Screenshot area\n  Screenshot full\n󰃉  Color picker\n  Screen record") in
+        *area*)        grimblast copy area ;;
+        *full*)        grimblast copy screen ;;
+        *Color*)       pkill hyprpicker || hyprpicker -a ;;
+        *record*)      show_screenrecord_menu ;;
+        *)             back_to show_main_menu ;;
+    esac
+}
+
+show_screenrecord_menu() {
+    case $(menu "Screen record" "  No audio\n  Desktop audio\n  Mic + desktop audio") in
+        *"No audio"*)  wf-recorder -f ~/Videos/screenrecord-$(date +%Y%m%d-%H%M%S).mp4 & ;;
+        *Desktop*)     wf-recorder -a -f ~/Videos/screenrecord-$(date +%Y%m%d-%H%M%S).mp4 & ;;
+        *Mic*)         wf-recorder -a --audio-backend=pipewire -f ~/Videos/screenrecord-$(date +%Y%m%d-%H%M%S).mp4 & ;;
+        *)             back_to show_capture_menu ;;
+    esac
+}
+
+# ── Toggle ────────────────────────────────────────────────────────────────────
+show_toggle_menu() {
+    case $(menu "Toggle" "󰍜  Top bar\n󰔎  Nightlight\n  Window gaps\n  Idle lock") in
+        *bar*)      pkill -USR1 waybar ;;
+        *Night*)    _toggle_nightlight ;;
+        *gaps*)     _toggle_gaps ;;
+        *Idle*)     _toggle_idle ;;
+        *)          back_to show_main_menu ;;
+    esac
+}
+
+_toggle_nightlight() {
+    if pgrep -x hyprsunset &>/dev/null; then
+        pkill -x hyprsunset
+        notify-send "Nightlight off"
+    else
+        hyprsunset -t 3500 &
+        notify-send "Nightlight on"
+    fi
+}
+
+_toggle_gaps() {
+    local cur
+    cur=$(hyprctl getoption general:gaps_out -j | jq '.int')
+    if [[ $cur -eq 0 ]]; then
+        hyprctl keyword general:gaps_out 10
+        hyprctl keyword general:gaps_in 5
+    else
+        hyprctl keyword general:gaps_out 0
+        hyprctl keyword general:gaps_in 0
+    fi
+}
+
+_toggle_idle() {
+    if pgrep -x hypridle &>/dev/null; then
+        pkill -x hypridle
+        notify-send "Idle lock disabled"
+    else
+        hypridle &
+        notify-send "Idle lock enabled"
+    fi
+}
+
+# ── Config ────────────────────────────────────────────────────────────────────
+show_config_menu() {
+    case $(menu "Config" "  Look & feel\n  Keybindings\n  Monitors\n  Input\n  Autostart\n  Window rules\n󰍜  Waybar\n  Mako\n  Hyprlock\n  Hypridle") in
+        *Look*)     xdg-terminal-exec -- sh -c "${EDITOR:-nvim} ~/.config/hypr/looknfeel.conf; hyprctl reload" ;;
+        *Keys*)     xdg-terminal-exec -- sh -c "${EDITOR:-nvim} ~/.config/hypr/keybindings.conf; hyprctl reload" ;;
+        *Mon*)      xdg-terminal-exec -- sh -c "${EDITOR:-nvim} ~/.config/hypr/monitors.conf; hyprctl reload" ;;
+        *Input*)    xdg-terminal-exec -- sh -c "${EDITOR:-nvim} ~/.config/hypr/input.conf; hyprctl reload" ;;
+        *Auto*)     xdg-terminal-exec -- sh -c "${EDITOR:-nvim} ~/.config/hypr/autostart.conf" ;;
+        *rules*)    xdg-terminal-exec -- sh -c "${EDITOR:-nvim} ~/.config/hypr/rules.conf; hyprctl reload" ;;
+        *Waybar*)   xdg-terminal-exec -- sh -c "${EDITOR:-nvim} ~/.config/waybar/config.jsonc && pkill -USR2 waybar" ;;
+        *Mako*)     xdg-terminal-exec -- sh -c "${EDITOR:-nvim} ~/.config/mako/config && makoctl reload" ;;
+        *lock*)     xdg-terminal-exec -- "${EDITOR:-nvim}" ~/.config/hypr/hyprlock.conf ;;
+        *idle*)     xdg-terminal-exec -- sh -c "${EDITOR:-nvim} ~/.config/hypr/hypridle.conf && pkill hypridle; hypridle &" ;;
+        *)          back_to show_main_menu ;;
+    esac
+}
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+show_main_menu() {
+    case $(menu "NaruMa" "  Apps\n  System\n  Capture\n󰔎  Toggle\n  Config" 295) in
+        *Apps*)    _launch_walker ;;
+        *System*)  show_system_menu ;;
+        *Capture*) show_capture_menu ;;
+        *Toggle*)  show_toggle_menu ;;
+        *Config*)  show_config_menu ;;
+    esac
+}
+
+_launch_walker() {
+    if command -v walker &>/dev/null; then
+        walker -p "Launch…"
+    else
+        rofi -show drun -show-icons
+    fi
+}
+
+# ── Entry point ───────────────────────────────────────────────────────────────
+if [[ -n ${1:-} ]]; then
+    BACK_TO_EXIT=true
+    case "${1,,}" in
+        system)  show_system_menu ;;
+        capture) show_capture_menu ;;
+        toggle)  show_toggle_menu ;;
+        config)  show_config_menu ;;
+        *)       show_main_menu ;;
+    esac
+else
+    show_main_menu
+fi

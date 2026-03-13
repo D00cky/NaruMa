@@ -12,7 +12,9 @@ Minimal by design. No magic scripts, no abstractions. Just Hyprland config files
 
 - **Hyprland** — window manager config (look & feel, keybindings, rules, input, autostart)
 - **Waybar** — minimal top bar with icon-only modules
-- **Rofi** — app launcher
+- **Walker** — fast GTK4 app launcher with search (`Super + Space`)
+- **naruma-menu** — system menu with search (`Super + Alt + Space`)
+- **Rofi** — fallback launcher if walker is not installed
 - **Mako** — notifications
 - **Hyprlock** — lock screen
 - **Hypridle** — idle/suspend policy
@@ -31,13 +33,31 @@ cd ~/.config/naruma
 bash install.sh
 ```
 
-The script symlinks all config files into `~/.config/`. Any existing files are backed up with a `.bak` extension before being replaced.
+The script will:
+1. Install all required packages via `pacman` (and AUR packages via `paru` or `yay` if available)
+2. Copy `bin/naruma-*` scripts to `~/.local/bin/`
+3. Symlink all config files into `~/.config/` (existing files are backed up as `.bak`)
+4. Download the default wallpaper if none is set
 
 Then reload Hyprland:
 
 ```sh
 hyprctl reload
 ```
+
+To skip package installation (e.g. if you manage packages separately):
+
+```sh
+bash install.sh --no-packages
+```
+
+### Required packages
+
+Installed automatically by the script. Listed here for reference:
+
+**pacman:** `hyprland` `hyprlock` `hypridle` `hyprpicker` `waybar` `mako` `rofi-wayland` `swaybg` `swayosd` `grim` `slurp` `wl-clipboard` `cliphist` `brightnessctl` `playerctl` `ttf-jetbrains-mono-nerd` `papirus-icon-theme` `noto-fonts-emoji` `polkit-gnome` `alacritty` `jq` `wf-recorder`
+
+**AUR:** `walker-bin` `grimblast-git`
 
 ### Wallpaper
 
@@ -71,7 +91,10 @@ All files live in the repo and are symlinked — edit them in place and they tak
 | `waybar/config.jsonc` | Bar modules and layout |
 | `waybar/style.css` | Bar colors and spacing |
 | `mako/config` | Notification position, colors, timeout |
-| `rofi/config.rasi` | Launcher colors and dimensions |
+| `walker/config.toml` | App launcher behavior and providers |
+| `walker/themes/naruma/style.css` | App launcher colors |
+| `rofi/config.rasi` | Fallback launcher / system menu colors |
+| `bin/naruma-menu` | System menu entries and actions |
 | `hyprlock/hyprlock.conf` | Lock screen layout |
 | `hypridle/hypridle.conf` | Idle timeouts for dim, lock, and suspend |
 
@@ -85,8 +108,9 @@ Colors are defined at the top of `hyprland/looknfeel.conf` and `waybar/style.css
 
 | Binding | Action |
 |---|---|
+| `Super + Space` | App launcher (Walker — with search) |
+| `Super + Alt + Space` | System menu (with search) |
 | `Super + Enter` | Terminal |
-| `Super + Space` | App launcher |
 | `Super + W` | Close window |
 | `Super + F` | Fullscreen |
 | `Super + T` | Toggle float |
@@ -99,5 +123,6 @@ Colors are defined at the top of `hyprland/looknfeel.conf` and `waybar/style.css
 | `Super + Shift + arrows` | Swap windows |
 | `Super + Backspace` | Toggle window transparency |
 | `Super + Ctrl + L` | Lock screen |
+| `Super + Escape` | System submenu (lock/suspend/shutdown) |
 
 Full list in `hyprland/keybindings.conf`.
