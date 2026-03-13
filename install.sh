@@ -6,12 +6,20 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG="$HOME/.config"
-BIN="$HOME/.local/bin"
+BIN="$HOME/.config/naruma/bin"
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 log()  { echo "  $*"; }
 info() { echo ""; echo "▸ $*"; }
+has()  { command -v "$1" &>/dev/null; }
+
+aur_helper() {
+    if has paru; then echo paru
+    elif has yay; then echo yay
+    else echo ""
+    fi
+}
 
 link() {
     local src="$1" dst="$2"
@@ -24,14 +32,48 @@ link() {
     log "Linked $dst"
 }
 
-has() { command -v "$1" &>/dev/null; }
+# ── Symlink manifest ───────────────────────────────────────────────────────────
+# Parallel arrays: LINK_SRCS (relative to REPO) and LINK_DSTS (relative to CONFIG)
 
-aur_helper() {
-    if has paru; then echo paru
-    elif has yay; then echo yay
-    else echo ""
-    fi
-}
+LINK_SRCS=(
+    hyprland/hyprland.conf
+    hyprland/looknfeel.conf
+    hyprland/input.conf
+    hyprland/autostart.conf
+    hyprland/keybindings.conf
+    hyprland/rules.conf
+    hyprland/monitors.conf
+    hyprlock/hyprlock.conf
+    hypridle/hypridle.conf
+    waybar/config.jsonc
+    waybar/style.css
+    mako/config
+    rofi/config.rasi
+    walker/config.toml
+    walker/themes/naruma/layout.xml
+    walker/themes/naruma/style.css
+    alacritty/alacritty.toml
+)
+
+LINK_DSTS=(
+    hypr/hyprland.conf
+    hypr/looknfeel.conf
+    hypr/input.conf
+    hypr/autostart.conf
+    hypr/keybindings.conf
+    hypr/rules.conf
+    hypr/monitors.conf
+    hypr/hyprlock.conf
+    hypr/hypridle.conf
+    waybar/config.jsonc
+    waybar/style.css
+    mako/config
+    rofi/config.rasi
+    walker/config.toml
+    walker/themes/naruma/layout.xml
+    walker/themes/naruma/style.css
+    alacritty/alacritty.toml
+)
 
 # ── Packages ──────────────────────────────────────────────────────────────────
 
@@ -92,9 +134,7 @@ install_packages() {
     info "Installing pacman packages…"
     local missing=()
     for pkg in "${PACMAN_PKGS[@]}"; do
-        if ! pacman -Qi "$pkg" &>/dev/null; then
-            missing+=("$pkg")
-        fi
+        pacman -Qi "$pkg" &>/dev/null || missing+=("$pkg")
     done
 
     if [[ ${#missing[@]} -gt 0 ]]; then
@@ -109,9 +149,7 @@ install_packages() {
     if [[ -z $aur ]]; then
         echo ""
         echo "  ⚠ No AUR helper found (paru/yay). Skipping AUR packages:"
-        for pkg in "${AUR_PKGS[@]}"; do
-            echo "    - $pkg"
-        done
+        for pkg in "${AUR_PKGS[@]}"; do echo "    - $pkg"; done
         echo "  Install paru or yay, then re-run this script."
         return
     fi
@@ -119,9 +157,7 @@ install_packages() {
     info "Installing AUR packages (${aur})…"
     local aur_missing=()
     for pkg in "${AUR_PKGS[@]}"; do
-        if ! pacman -Qi "$pkg" &>/dev/null; then
-            aur_missing+=("$pkg")
-        fi
+        pacman -Qi "$pkg" &>/dev/null || aur_missing+=("$pkg")
     done
 
     if [[ ${#aur_missing[@]} -gt 0 ]]; then
@@ -137,7 +173,12 @@ install_packages() {
 install_bin() {
     info "Installing NaruMa scripts to $BIN…"
     mkdir -p "$BIN"
-    for script in "$REPO/bin/"*; do
+    local scripts=("$REPO/bin/"*)
+    if [[ ! -e ${scripts[0]} ]]; then
+        log "No scripts found in bin/."
+        return
+    fi
+    for script in "${scripts[@]}"; do
         local name
         name="$(basename "$script")"
         cp "$script" "$BIN/$name"
@@ -145,46 +186,31 @@ install_bin() {
         log "Installed $BIN/$name"
     done
 
-    # Ensure ~/.local/bin is in PATH
     if [[ ":$PATH:" != *":$BIN:"* ]]; then
         echo ""
         echo "  ⚠ $BIN is not in your PATH."
         echo "  Add this to your ~/.bashrc or ~/.zshrc:"
-        echo '    export PATH="$HOME/.local/bin:$PATH"'
+        echo "    export PATH=\"$BIN:\$PATH\""
     fi
 }
 
 # ── Config symlinks ───────────────────────────────────────────────────────────
 
 install_config() {
-    info "Linking Hyprland config…"
-    link "$REPO/hyprland/hyprland.conf"    "$CONFIG/hypr/hyprland.conf"
-    link "$REPO/hyprland/looknfeel.conf"   "$CONFIG/hypr/looknfeel.conf"
-    link "$REPO/hyprland/input.conf"       "$CONFIG/hypr/input.conf"
-    link "$REPO/hyprland/autostart.conf"   "$CONFIG/hypr/autostart.conf"
-    link "$REPO/hyprland/keybindings.conf" "$CONFIG/hypr/keybindings.conf"
-    link "$REPO/hyprland/rules.conf"       "$CONFIG/hypr/rules.conf"
-    link "$REPO/hyprland/monitors.conf"    "$CONFIG/hypr/monitors.conf"
-    link "$REPO/hyprlock/hyprlock.conf"    "$CONFIG/hypr/hyprlock.conf"
-    link "$REPO/hypridle/hypridle.conf"    "$CONFIG/hypr/hypridle.conf"
-
-    info "Linking Waybar config…"
-    link "$REPO/waybar/config.jsonc" "$CONFIG/waybar/config.jsonc"
-    link "$REPO/waybar/style.css"    "$CONFIG/waybar/style.css"
-
-    info "Linking Mako config…"
-    link "$REPO/mako/config" "$CONFIG/mako/config"
-
-    info "Linking Rofi config…"
-    link "$REPO/rofi/config.rasi" "$CONFIG/rofi/config.rasi"
-
-    info "Linking Walker config…"
-    link "$REPO/walker/config.toml"                           "$CONFIG/walker/config.toml"
-    link "$REPO/walker/themes/naruma/layout.xml"              "$CONFIG/walker/themes/naruma/layout.xml"
-    link "$REPO/walker/themes/naruma/style.css"               "$CONFIG/walker/themes/naruma/style.css"
+    local n=${#LINK_SRCS[@]}
+    for (( i = 0; i < n; i++ )); do
+        local section
+        section="$(dirname "${LINK_DSTS[$i]}")"
+        # Print section header on first entry for each top-level dir
+        local top="${section%%/*}"
+        if [[ $i -eq 0 || "${LINK_DSTS[$i-1]%%/*}" != "$top" ]]; then
+            info "Linking ${top^} config…"
+        fi
+        link "$REPO/${LINK_SRCS[$i]}" "$CONFIG/${LINK_DSTS[$i]}"
+    done
 }
 
-# ── Wallpaper placeholder ─────────────────────────────────────────────────────
+# ── Wallpaper ─────────────────────────────────────────────────────────────────
 
 setup_wallpaper() {
     local wallpaper="$CONFIG/hypr/wallpaper"
@@ -209,15 +235,12 @@ echo ""
 echo "  NaruMa — Hyprland theme installer"
 echo "  ──────────────────────────────────"
 
-# Parse flags
 SKIP_PKGS=false
 for arg in "$@"; do
     [[ $arg == "--no-packages" ]] && SKIP_PKGS=true
 done
 
-if [[ $SKIP_PKGS == false ]]; then
-    install_packages
-fi
+[[ $SKIP_PKGS == false ]] && install_packages
 
 install_bin
 install_config
