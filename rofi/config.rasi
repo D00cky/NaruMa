@@ -1,0 +1,105 @@
+/* NaruMa — Rofi (Catppuccin Mocha) */
+
+configuration {
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    terminal: "xdg-terminal-exec";
+    drun-display-format: "{name}";
+    display-drun: "Apps";
+    display-run: "Run";
+    display-window: "Windows";
+    display-filebrowser: "Files";
+}
+
+* {
+    base:     #1e1e2e;
+    mantle:   #181825;
+    crust:    #11111b;
+    text:     #cdd6f4;
+    subtext1: #bac2de;
+    overlay1: #7f849c;
+    surface0: #313244;
+    surface1: #45475a;
+    blue:     #89b4fa;
+    green:    #a6e3a1;
+    teal:     #94e2d5;
+    red:      #f38ba8;
+    mauve:    #cba6f7;
+
+    background-color: transparent;
+    text-color:       @text;
+}
+
+window {
+    width: 560px;
+    background-color: @base;
+    border: 2px solid @surface1;
+    border-radius: 0px;
+    padding: 0;
+}
+
+mainbox {
+    background-color: transparent;
+    padding: 0;
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    background-color: @mantle;
+    padding: 10px 12px;
+    border-bottom: 1px solid @surface0;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    background-color: transparent;
+    text-color: @blue;
+    padding: 0 6px 0 0;
+}
+
+entry {
+    background-color: transparent;
+    text-color: @text;
+    placeholder-color: @overlay1;
+    placeholder: "Search…";
+    blink: true;
+}
+
+listview {
+    background-color: transparent;
+    padding: 6px;
+    columns: 1;
+    lines: 8;
+    scrollbar: false;
+}
+
+element {
+    background-color: transparent;
+    padding: 8px 10px;
+    border-radius: 0px;
+    spacing: 8px;
+    children: [ element-icon, element-text ];
+}
+
+element selected {
+    background-color: @surface0;
+    text-color: @text;
+}
+
+element-icon {
+    size: 18px;
+    vertical-align: 0.5;
+}
+
+element-text {
+    vertical-align: 0.5;
+    text-color: inherit;
+}
+
+element.active {
+    text-color: @blue;
+}
+
+element.urgent {
+    text-color: @red;
+}

@@ -1,0 +1,119 @@
+/* NaruMa — Waybar style (Catppuccin Mocha) */
+
+@define-color base     #1e1e2e;
+@define-color mantle   #181825;
+@define-color crust    #11111b;
+@define-color text     #cdd6f4;
+@define-color subtext1 #bac2de;
+@define-color overlay1 #7f849c;
+@define-color surface0 #313244;
+@define-color surface1 #45475a;
+@define-color blue     #89b4fa;
+@define-color lavender #b4befe;
+@define-color green    #a6e3a1;
+@define-color teal     #94e2d5;
+@define-color mauve    #cba6f7;
+@define-color red      #f38ba8;
+@define-color peach    #fab387;
+@define-color yellow   #f9e2af;
+
+* {
+  background-color: @base;
+  color: @text;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 12px;
+}
+
+window#waybar {
+  background-color: @base;
+  border-bottom: 1px solid @surface0;
+}
+
+.modules-left  { margin-left: 8px; }
+.modules-right { margin-right: 8px; }
+
+/* Workspaces */
+#workspaces button {
+  all: initial;
+  color: @overlay1;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 12px;
+  padding: 0 6px;
+  margin: 0 1.5px;
+  min-width: 9px;
+  transition: color 0.15s ease;
+}
+
+#workspaces button.active {
+  color: @blue;
+}
+
+#workspaces button.urgent {
+  color: @red;
+}
+
+#workspaces button.empty {
+  opacity: 0.4;
+}
+
+#workspaces button:hover {
+  background: @surface0;
+  color: @text;
+}
+
+/* Clock */
+#clock {
+  color: @subtext1;
+  margin: 0 10px;
+}
+
+/* Right-side modules — shared spacing */
+#cpu,
+#memory,
+#battery,
+#pulseaudio,
+#network,
+#bluetooth,
+#custom-update,
+#custom-expand-icon {
+  min-width: 12px;
+  margin: 0 7px;
+  color: @subtext1;
+}
+
+#tray {
+  margin-right: 14px;
+}
+
+/* State colors */
+#battery.warning   { color: @yellow; }
+#battery.critical  { color: @red; }
+
+#cpu:hover,
+#memory:hover,
+#battery:hover,
+#pulseaudio:hover,
+#network:hover,
+#bluetooth:hover {
+  color: @text;
+}
+
+#bluetooth.connected { color: @blue; }
+#network.disconnected { color: @overlay1; }
+
+#pulseaudio.muted { color: @overlay1; }
+
+tooltip {
+  background: @mantle;
+  border: 1px solid @surface0;
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: @text;
+}
+
+tooltip label { color: @text; }
+
+.hidden { opacity: 0; }
