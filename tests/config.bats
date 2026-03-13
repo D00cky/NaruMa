@@ -85,10 +85,6 @@ except json.JSONDecodeError as e:
 
 # ── autostart.conf content ────────────────────────────────────────────────────
 
-@test "autostart.conf starts elephant" {
-    grep -q "elephant" "$REPO/hyprland/autostart.conf"
-}
-
 @test "autostart.conf starts walker service" {
     grep -q "walker --gapplication-service" "$REPO/hyprland/autostart.conf"
 }

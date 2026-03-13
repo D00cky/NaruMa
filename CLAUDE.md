@@ -28,8 +28,10 @@ themes/           # color palettes — see Theme system below
 bin/              # scripts (copied to ~/.config/naruma/bin/ on install)
   naruma-menu         # system menu (Super + Alt + Space)
   naruma-launch-apps  # app launcher wrapper (Super + Space)
+  naruma-apps         # curated app installer/remover (8 categories)
   naruma-theme        # theme switcher
   naruma-check        # pre-flight config checker
+tests/            # bats test suite (84 tests)
 install.sh        # installs packages + symlinks configs
 uninstall.sh      # removes symlinks and state files
 ```
@@ -91,7 +93,7 @@ To add a custom theme, create `themes/my-theme/` with all 6 files (use an existi
 
 ## Bin scripts
 
-`bin/naruma-menu` — hierarchical system menu using walker `--dmenu` (falls back to rofi):
+`bin/naruma-menu` — hierarchical system menu using walker `--dmenu` (falls back to rofi). All 8 top-level entries have nerd font icons:
 
 ```sh
 naruma-menu system    # lock/suspend/reboot/shutdown/logout
@@ -99,7 +101,10 @@ naruma-menu capture   # screenshot / screen record
 naruma-menu toggle    # bar, nightlight, gaps, idle lock
 naruma-menu config    # open config files in $EDITOR
 naruma-menu packages  # install/search/upgrade/remove via paru or yay (also: aur)
+naruma-menu install   # open naruma-apps curated installer
 ```
+
+`bin/naruma-apps` — browse and install/remove curated apps across 8 categories (Browsers, Terminals, Editors, Files, Media, Communication, Development, Productivity). Shows ✓ next to installed packages. After install/remove, restarts `walker --gapplication-service` so new `.desktop` files are picked up immediately.
 
 `bin/naruma-check` — pre-flight checker; validates symlinks, active theme, fonts, Hyprland version, and config errors after a live reload. Exit 0 = clean, 1 = errors:
 
@@ -107,7 +112,23 @@ naruma-menu packages  # install/search/upgrade/remove via paru or yay (also: aur
 naruma-check
 ```
 
-`bin/naruma-launch-apps` — starts the walker service (and elephant data provider) if not running, then opens the launcher.
+`bin/naruma-launch-apps` — starts the walker service if not running, then opens the launcher. Walker uses the built-in `applications` module (no elephant required).
+
+## Tests
+
+```sh
+bats tests/          # run all 84 tests
+bash tests/run_tests.sh  # alternative runner
+```
+
+| File | Tests | Coverage |
+|---|---|---|
+| `tests/helpers/common.bash` | — | Shared mocks (walker, rofi, pacman, hyprctl, etc.) |
+| `tests/naruma_apps.bats` | 25 | mark(), _aur_helper(), all 8 categories, AUR fallback |
+| `tests/naruma_menu.bats` | 19 | Subcommands, icon presence, Install/Packages routing, toggle_gaps |
+| `tests/naruma_theme.bats` | 8 | list, active marker, invalid theme error |
+| `tests/themes.bats` | 31 | All 6 files per theme × 4 themes, symlink integrity |
+| `tests/config.bats` | 9 | hyprctl errors, symlinks, JSONC validity, rules syntax |
 
 ## Key bindings summary
 

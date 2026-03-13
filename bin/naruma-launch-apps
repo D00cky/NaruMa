@@ -3,12 +3,7 @@
 # Uses walker if available (with elephant service), otherwise falls back to rofi
 
 if command -v walker &>/dev/null; then
-    # Ensure elephant data provider is running
-    if ! pgrep -x elephant &>/dev/null; then
-        setsid elephant &
-    fi
-
-    # Ensure walker service is running
+    # Ensure walker service is running (built-in applications module, no elephant needed)
     if ! pgrep -f "walker --gapplication-service" &>/dev/null; then
         setsid walker --gapplication-service &
     fi
