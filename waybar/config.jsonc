@@ -60,7 +60,8 @@
   "memory": {
     "interval": 10,
     "format": "󰘓",
-    "tooltip-format": "RAM: {used:0.1f}G / {total:0.1f}G"
+    "tooltip-format": "RAM: {used:0.1f}G / {total:0.1f}G",
+    "on-click": "xdg-terminal-exec btop"
   },
 
   "network": {
@@ -72,7 +73,9 @@
     "tooltip-format-wifi": "{essid} ({signalStrength}%)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "tooltip-format-disconnected": "Disconnected",
-    "interval": 3
+    "interval": 3,
+    "on-click": "nm-connection-editor",
+    "on-click-right": "xdg-terminal-exec nmtui"
   },
 
   "bluetooth": {
@@ -86,8 +89,8 @@
   },
 
   "pulseaudio": {
-    "format": "{icon}",
-    "format-muted": "",
+    "format": "{icon} {volume}%",
+    "format-muted": " muted",
     "format-icons": {
       "headphone": "",
       "headset": "",
@@ -95,6 +98,8 @@
     },
     "on-click": "pavucontrol",
     "on-click-right": "pamixer -t",
+    "on-scroll-up": "pamixer -i 5",
+    "on-scroll-down": "pamixer -d 5",
     "tooltip-format": "{desc} — {volume}%",
     "scroll-step": 5
   },
@@ -115,7 +120,8 @@
     "states": {
       "warning": 20,
       "critical": 10
-    }
+    },
+    "on-click": "xdg-terminal-exec bash -c 'upower -i $(upower -e | grep BAT) | less'"
   },
 
   "group/tray-expander": {
@@ -138,10 +144,9 @@
   },
 
   "custom/update": {
-    "format": "",
-    "exec": "checkupdates 2>/dev/null | wc -l | xargs -I{} test {} -gt 0 && echo '' || echo ''",
-    "tooltip-format": "Updates available",
+    "exec": "count=$(checkupdates 2>/dev/null | wc -l); if [ \"$count\" -gt 0 ]; then echo \"{\\\"text\\\":\\\"󰚰\\\",\\\"tooltip\\\":\\\"$count updates available\\\"}\"; else echo \"{\\\"text\\\":\\\"\\\",\\\"tooltip\\\":\\\"System up to date\\\"}\"; fi",
+    "return-type": "json",
     "interval": 3600,
-    "return-type": ""
+    "on-click": "xdg-terminal-exec paru -Syu"
   }
 }

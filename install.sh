@@ -173,6 +173,18 @@ PACMAN_PKGS=(
     # Terminal (default)
     alacritty
 
+    # Audio
+    pamixer
+
+    # Night light
+    hyprsunset
+
+    # Network manager GUI
+    nm-connection-editor
+
+    # Update notifications (checkupdates command)
+    pacman-contrib
+
     # Utils used in menus
     jq
     wf-recorder
