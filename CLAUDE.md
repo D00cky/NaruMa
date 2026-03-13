@@ -32,6 +32,8 @@ hyprlock/       # lock screen
   hyprlock.conf
 hypridle/       # idle/suspend policy
   hypridle.conf
+alacritty/      # terminal
+  alacritty.toml  # font (JetBrainsMono Nerd Font 12) + Catppuccin Mocha colors
 bin/            # scripts (copied to ~/.config/naruma/bin/)
   naruma-menu         # system menu (Super + Alt + Space)
   naruma-launch-apps  # app launcher wrapper (Super + Space)

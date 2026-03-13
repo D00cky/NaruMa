@@ -97,6 +97,7 @@ All files live in the repo and are symlinked — edit them in place and they tak
 | `bin/naruma-menu` | System menu entries and actions |
 | `hyprlock/hyprlock.conf` | Lock screen layout |
 | `hypridle/hypridle.conf` | Idle timeouts for dim, lock, and suspend |
+| `alacritty/alacritty.toml` | Terminal font and colors |
 
 ### Changing the color scheme
 
