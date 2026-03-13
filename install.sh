@@ -99,6 +99,36 @@ LINK_DSTS=(
     hypr/hyprlock.conf
 )
 
+# ── Hyprland version check ────────────────────────────────────────────────────
+
+check_hyprland_update() {
+    info "Checking Hyprland version…"
+
+    # Refresh sync DB so we compare against the real latest
+    log "Refreshing package database…"
+    sudo pacman -Sy --quiet 2>/dev/null
+
+    local installed latest
+    installed=$(pacman -Qi hyprland 2>/dev/null | awk '/^Version/{print $3}')
+    latest=$(pacman -Si hyprland 2>/dev/null | awk '/^Version/{print $3}')
+
+    if [[ -z "$installed" ]]; then
+        log "Hyprland not yet installed — will be installed with packages."
+        return
+    fi
+
+    log "Installed : hyprland $installed"
+    log "Latest    : hyprland $latest"
+
+    if [[ "$installed" == "$latest" ]]; then
+        log "Already on latest."
+    else
+        log "Update available — upgrading Hyprland before continuing…"
+        sudo pacman -S --needed --noconfirm hyprland
+        log "Hyprland upgraded to $latest."
+    fi
+}
+
 # ── Packages ──────────────────────────────────────────────────────────────────
 
 PACMAN_PKGS=(
@@ -272,7 +302,10 @@ for arg in "$@"; do
     [[ $arg == "--no-packages" ]] && SKIP_PKGS=true
 done
 
-[[ $SKIP_PKGS == false ]] && install_packages
+if [[ $SKIP_PKGS == false ]]; then
+    check_hyprland_update
+    install_packages
+fi
 
 install_bin
 install_config

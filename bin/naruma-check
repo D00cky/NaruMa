@@ -118,7 +118,30 @@ else
     _warn "Noto Emoji not found — install noto-fonts-emoji"
 fi
 
-# ── 5. Hyprland config errors ──────────────────────────────────────────────────
+# ── 5. Hyprland version ───────────────────────────────────────────────────────
+
+_head "Checking Hyprland version…"
+
+if ! command -v pacman &>/dev/null; then
+    _warn "pacman not available — skipping version check"
+else
+    installed=$(pacman -Qi hyprland 2>/dev/null | awk '/^Version/{print $3}')
+    latest=$(pacman -Si hyprland 2>/dev/null | awk '/^Version/{print $3}')
+
+    if [[ -z "$installed" ]]; then
+        _fail "Hyprland is not installed"
+    elif [[ -z "$latest" ]]; then
+        _warn "Could not determine latest version (sync DB may be stale — run: sudo pacman -Sy)"
+        _ok  "Installed: hyprland $installed"
+    elif [[ "$installed" == "$latest" ]]; then
+        _ok "hyprland $installed (up to date)"
+    else
+        _warn "hyprland $installed installed, $latest available"
+        _warn "Run: sudo pacman -S hyprland   (or re-run install.sh)"
+    fi
+fi
+
+# ── 6. Hyprland config errors ──────────────────────────────────────────────────
 
 _head "Checking Hyprland config…"
 
