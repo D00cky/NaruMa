@@ -270,3 +270,37 @@ EOF
 @test "main menu contains Packages entry" {
     grep -q "Packages" "$SCRIPT"
 }
+
+# ── Main menu icons ───────────────────────────────────────────────────────────
+
+@test "main menu Apps entry has icon" {
+    grep -q $'󰀻.*Apps' "$SCRIPT"
+}
+
+@test "main menu Install entry has icon" {
+    grep -q $'󰮊.*Install' "$SCRIPT"
+}
+
+@test "main menu System entry has icon" {
+    grep -q $'󰐥.*System' "$SCRIPT"
+}
+
+@test "main menu Capture entry has icon" {
+    grep -q $'󰄀.*Capture' "$SCRIPT"
+}
+
+@test "main menu Toggle entry has icon" {
+    grep -q $'󰔎.*Toggle' "$SCRIPT"
+}
+
+@test "main menu Config entry has icon" {
+    grep -q $'󰒓.*Config' "$SCRIPT"
+}
+
+@test "main menu Theme entry has icon" {
+    grep -q $'󰔌.*Theme' "$SCRIPT"
+}
+
+@test "main menu Packages entry has icon" {
+    grep -q $'󰏓.*Packages' "$SCRIPT"
+}

@@ -53,10 +53,10 @@ install_pkg() {
         xdg-terminal-exec -- sh -c "$cmd; echo; read -rp 'Press Enter to close'"
     fi
 
-    # Refresh walker app index after install/remove
-    pkill elephant 2>/dev/null || true
-    sleep 0.3
-    setsid elephant &>/dev/null &
+    # Restart walker service so newly installed .desktop files are picked up
+    pkill -f "walker --gapplication-service" 2>/dev/null || true
+    sleep 0.5
+    setsid walker --gapplication-service &>/dev/null &
 }
 
 # ── Categories ────────────────────────────────────────────────────────────────
