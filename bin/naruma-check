@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+# NaruMa — pre-flight config checker
+# Validates symlinks, theme state, dependencies, and Hyprland config errors.
+# Exit code 0 = all clear, 1 = errors found.
+
+NARUMA="$(cat "$HOME/.config/naruma/repo" 2>/dev/null || echo "$HOME/.config/naruma")"
+CONFIG="$HOME/.config"
+
+ERRORS=0
+WARNINGS=0
+
+# ── Output helpers ─────────────────────────────────────────────────────────────
+
+_ok()   { echo "  [OK]  $*"; }
+_warn() { echo "  [!!]  $*"; WARNINGS=$((WARNINGS + 1)); }
+_fail() { echo "  [ERR] $*"; ERRORS=$((ERRORS + 1)); }
+_head() { echo ""; echo "▸ $*"; }
+
+# ── 1. Required commands ───────────────────────────────────────────────────────
+
+_head "Checking required commands…"
+
+REQUIRED_CMDS=(hyprctl waybar mako swaybg jq)
+OPTIONAL_CMDS=(walker rofi grimblast hyprpicker wf-recorder makoctl)
+
+for cmd in "${REQUIRED_CMDS[@]}"; do
+    if command -v "$cmd" &>/dev/null; then
+        _ok "$cmd"
+    else
+        _fail "$cmd not found (required)"
+    fi
+done
+
+for cmd in "${OPTIONAL_CMDS[@]}"; do
+    if command -v "$cmd" &>/dev/null; then
+        _ok "$cmd"
+    else
+        _warn "$cmd not found (optional — some features may not work)"
+    fi
+done
+
+# ── 2. Symlink integrity ───────────────────────────────────────────────────────
+
+_head "Checking config symlinks…"
+
+EXPECTED_LINKS=(
+    "$CONFIG/hypr/hyprland.conf"
+    "$CONFIG/hypr/looknfeel.conf"
+    "$CONFIG/hypr/input.conf"
+    "$CONFIG/hypr/autostart.conf"
+    "$CONFIG/hypr/keybindings.conf"
+    "$CONFIG/hypr/rules.conf"
+    "$CONFIG/hypr/monitors.conf"
+    "$CONFIG/hypr/hypridle.conf"
+    "$CONFIG/hypr/naruma-colors.conf"
+    "$CONFIG/hypr/hyprlock.conf"
+    "$CONFIG/waybar/style.css"
+    "$CONFIG/waybar/config.jsonc"
+    "$CONFIG/waybar/naruma-colors.css"
+    "$CONFIG/mako/config"
+    "$CONFIG/rofi/config.rasi"
+    "$CONFIG/rofi/naruma-colors.rasi"
+    "$CONFIG/walker/config.toml"
+    "$CONFIG/walker/themes/naruma/style.css"
+    "$CONFIG/walker/themes/naruma/naruma-colors.css"
+    "$CONFIG/alacritty/alacritty.toml"
+    "$CONFIG/alacritty/naruma-colors.toml"
+)
+
+for link in "${EXPECTED_LINKS[@]}"; do
+    if [[ -L "$link" && -e "$link" ]]; then
+        _ok "$link"
+    elif [[ -L "$link" ]]; then
+        _fail "Broken symlink: $link → $(readlink "$link") (target missing)"
+    else
+        _fail "Not symlinked: $link"
+    fi
+done
+
+# ── 3. Theme state ─────────────────────────────────────────────────────────────
+
+_head "Checking theme state…"
+
+THEME_FILE="$CONFIG/naruma/theme"
+REPO_FILE="$CONFIG/naruma/repo"
+
+if [[ -f "$REPO_FILE" ]]; then
+    _ok "Repo path: $(cat "$REPO_FILE")"
+else
+    _fail "Missing $REPO_FILE — re-run install.sh"
+fi
+
+if [[ -f "$THEME_FILE" ]]; then
+    theme="$(cat "$THEME_FILE")"
+    theme_dir="$NARUMA/themes/$theme"
+    if [[ -d "$theme_dir" ]]; then
+        _ok "Active theme: $theme"
+    else
+        _fail "Active theme '$theme' not found in $NARUMA/themes/"
+    fi
+else
+    _fail "No active theme — run: naruma-theme <name>"
+fi
+
+# ── 4. Font availability ───────────────────────────────────────────────────────
+
+_head "Checking fonts…"
+
+if fc-list | grep -qi "JetBrainsMono Nerd Font"; then
+    _ok "JetBrainsMono Nerd Font"
+else
+    _fail "JetBrainsMono Nerd Font not found — install ttf-jetbrains-mono-nerd"
+fi
+
+if fc-list | grep -qi "Noto Color Emoji\|Noto Emoji"; then
+    _ok "Noto Emoji"
+else
+    _warn "Noto Emoji not found — install noto-fonts-emoji"
+fi
+
+# ── 5. Hyprland config errors ──────────────────────────────────────────────────
+
+_head "Checking Hyprland config…"
+
+if ! command -v hyprctl &>/dev/null; then
+    _warn "hyprctl not available — skipping live config check"
+elif [[ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+    _warn "Hyprland is not running — skipping live config check"
+else
+    LOG="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/hyprland.log"
+
+    if [[ ! -f "$LOG" ]]; then
+        _warn "Hyprland log not found at $LOG"
+    else
+        # Record current log size, trigger reload, then scan new lines for errors
+        local_lines=$(wc -l < "$LOG")
+        hyprctl reload &>/dev/null
+        sleep 0.6
+
+        new_errors=$(tail -n +"$((local_lines + 1))" "$LOG" | grep -i "config error" || true)
+
+        if [[ -z "$new_errors" ]]; then
+            _ok "No config errors after reload"
+        else
+            while IFS= read -r line; do
+                _fail "$line"
+            done <<< "$new_errors"
+        fi
+    fi
+fi
+
+# ── Summary ────────────────────────────────────────────────────────────────────
+
+echo ""
+echo "  ─────────────────────────────────────"
+if [[ $ERRORS -eq 0 && $WARNINGS -eq 0 ]]; then
+    echo "  All checks passed."
+elif [[ $ERRORS -eq 0 ]]; then
+    echo "  Passed with $WARNINGS warning(s)."
+else
+    echo "  $ERRORS error(s), $WARNINGS warning(s) found."
+    echo ""
+    echo "  Fix errors above, then run: hyprctl reload"
+fi
+echo ""
+
+[[ $ERRORS -eq 0 ]]

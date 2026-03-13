@@ -18,8 +18,9 @@ Minimal by design. No magic scripts, no abstractions. Just Hyprland config files
 - **Mako** — notifications
 - **Hyprlock** — lock screen
 - **Hypridle** — idle/suspend policy
+- **Alacritty** — terminal, themed to match
 
-All styled with the [Catppuccin Mocha](https://github.com/catppuccin/catppuccin) palette.
+All styled with the [Catppuccin Mocha](https://github.com/catppuccin/catppuccin) palette by default, with 3 additional themes included.
 
 ---
 
@@ -35,7 +36,7 @@ bash install.sh
 
 The script will:
 1. Install all required packages via `pacman` (and AUR packages via `paru` or `yay` if available)
-2. Copy `bin/naruma-*` scripts to `~/.local/bin/`
+2. Copy `bin/naruma-*` scripts to `~/.config/naruma/bin/`
 3. Symlink all config files into `~/.config/` (existing files are backed up as `.bak`)
 4. Download the default wallpaper if none is set
 
@@ -76,32 +77,80 @@ swaybg -i ~/.config/hypr/wallpaper -m fill &
 
 ---
 
+## Diagnosing issues
+
+Run the pre-flight checker at any time to validate your setup:
+
+```sh
+naruma-check
+```
+
+It will verify symlinks, active theme, required fonts, and scan the Hyprland log for config errors after a reload. Exit code is 0 if clean, 1 if errors were found.
+
+---
+
+## Themes
+
+NaruMa ships with 4 themes. Switch via command or the system menu (`Super + Alt + Space` → Theme):
+
+```sh
+naruma-theme sakura        # apply a theme
+naruma-theme               # open picker (walker/rofi dmenu)
+naruma-theme list          # list all themes
+```
+
+| Theme | Description |
+|---|---|
+| `catppuccin-mocha` | Default — dark purple background, blue/teal accent gradient |
+| `sakura` | Deep plum background, cherry blossom pink + soft lavender gradient |
+| `cyberpunk` | Near-black, electric cyan + neon magenta gradient |
+| `pokemon` | Dark navy, Pikachu yellow + sky blue gradient |
+
+### Adding a custom theme
+
+Create a directory in `themes/` with 6 files:
+
+```
+themes/my-theme/
+  colors.conf       # Hyprland $variables
+  colors.css        # GTK CSS @define-color (Waybar + Walker)
+  colors.toml       # Alacritty [colors.*] sections
+  colors.rasi       # Rofi * {} color block
+  mako.config       # Full mako config
+  hyprlock.conf     # Full hyprlock config
+```
+
+Use any existing theme as a template. Then apply it:
+
+```sh
+naruma-theme my-theme
+```
+
+---
+
 ## Modifying the config
 
-All files live in the repo and are symlinked — edit them in place and they take effect immediately (Waybar reloads on CSS save; Hyprland needs `hyprctl reload`).
+All files live in the repo and are symlinked — edit them in place and changes take effect immediately (Waybar reloads on CSS save; Hyprland needs `hyprctl reload`).
 
 | File | What to change |
 |---|---|
 | `hyprland/monitors.conf` | Resolution, refresh rate, scale per monitor |
-| `hyprland/looknfeel.conf` | Colors, gaps, border size, animations, blur |
+| `hyprland/looknfeel.conf` | Gaps, border size, animations, blur |
 | `hyprland/keybindings.conf` | Add, remove, or remap any keybinding |
 | `hyprland/input.conf` | Keyboard layout, touchpad behavior |
 | `hyprland/autostart.conf` | Apps to launch on login |
 | `hyprland/rules.conf` | Per-app window rules and opacity |
 | `waybar/config.jsonc` | Bar modules and layout |
-| `waybar/style.css` | Bar colors and spacing |
-| `mako/config` | Notification position, colors, timeout |
+| `waybar/style.css` | Bar spacing and structure |
 | `walker/config.toml` | App launcher behavior and providers |
-| `walker/themes/naruma/style.css` | App launcher colors |
-| `rofi/config.rasi` | Fallback launcher / system menu colors |
 | `bin/naruma-menu` | System menu entries and actions |
-| `hyprlock/hyprlock.conf` | Lock screen layout |
+| `bin/naruma-theme` | Theme switcher logic |
 | `hypridle/hypridle.conf` | Idle timeouts for dim, lock, and suspend |
-| `alacritty/alacritty.toml` | Terminal font and colors |
+| `alacritty/alacritty.toml` | Terminal font size and window settings |
 
 ### Changing the color scheme
 
-Colors are defined at the top of `hyprland/looknfeel.conf` and `waybar/style.css`. Both use Catppuccin Mocha variables. To switch palette, replace the hex values in those two files — everything else inherits from them.
+Colors live in `themes/<name>/`. Each theme file is small and self-contained. To tweak the active theme, edit the files in its directory — changes take effect on the next `naruma-theme <name>` call (or `hyprctl reload` for Hyprland-side changes).
 
 ---
 
