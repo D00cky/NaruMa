@@ -185,6 +185,10 @@ PACMAN_PKGS=(
     # Update notifications (checkupdates command)
     pacman-contrib
 
+    # Core apps (referenced in keybindings)
+    btop
+    nautilus
+
     # Utils used in menus
     jq
     wf-recorder
@@ -194,6 +198,7 @@ PACMAN_PKGS=(
 AUR_PKGS=(
     walker-bin      # fast GTK4 app launcher (elephant data provider included)
     grimblast-git   # screenshot helper (wraps grim+slurp)
+    lazydocker      # Docker TUI (referenced in keybindings)
 )
 
 install_packages() {

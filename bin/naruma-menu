@@ -163,8 +163,9 @@ show_config_menu() {
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 show_main_menu() {
-    case $(menu "NaruMa" "  Apps\n  System\n  Capture\n󰔎  Toggle\n  Config\n  Theme\n󰏓  Packages" 295) in
+    case $(menu "NaruMa" "  Apps\n  Install\n  System\n  Capture\n󰔎  Toggle\n  Config\n  Theme\n󰏓  Packages" 295) in
         *Apps*)     _launch_walker ;;
+        *Install*)  naruma-apps ;;
         *System*)   show_system_menu ;;
         *Capture*)  show_capture_menu ;;
         *Toggle*)   show_toggle_menu ;;
@@ -176,6 +177,8 @@ show_main_menu() {
 
 _launch_walker() {
     if command -v walker &>/dev/null; then
+        # Ensure elephant data provider is running (indexes .desktop apps)
+        pgrep -x elephant &>/dev/null || setsid elephant &>/dev/null &
         walker -p "Launch…"
     else
         rofi -show drun -show-icons
@@ -191,6 +194,7 @@ if [[ -n ${1:-} ]]; then
         toggle)        show_toggle_menu ;;
         config)        show_config_menu ;;
         packages|aur)  show_packages_menu ;;
+        install)       naruma-apps ;;
         *)             show_main_menu ;;
     esac
 else

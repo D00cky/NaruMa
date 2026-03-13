@@ -1,0 +1,231 @@
+#!/usr/bin/env bash
+# naruma-apps — Browse and install/remove curated apps
+# Usage: naruma-apps [category]
+
+set -euo pipefail
+
+menu() {
+    local prompt="$1" options="$2" width="${3:-400}"
+    if command -v walker &>/dev/null; then
+        echo -e "$options" | walker --dmenu \
+            --width "$width" --minheight 1 --maxheight 560 \
+            -p "${prompt}…" 2>/dev/null
+    else
+        echo -e "$options" | rofi -dmenu \
+            -p "${prompt}" \
+            -theme-str "window { width: ${width}px; }" \
+            2>/dev/null
+    fi
+}
+
+_aur_helper() {
+    command -v paru &>/dev/null && echo paru && return
+    command -v yay  &>/dev/null && echo yay  && return
+    echo ""
+}
+
+# Show ✓ if package installed
+mark() {
+    pacman -Qi "$1" &>/dev/null && echo "✓ $2" || echo "  $2"
+}
+
+# Install or offer to remove a package
+install_pkg() {
+    local pkg="$1" aur="${2:-false}"
+
+    if pacman -Qi "$pkg" &>/dev/null; then
+        local choice
+        choice=$(menu "  $pkg is installed" "  Keep\n  Uninstall" 280)
+        [[ "$choice" == *Uninstall* ]] || return 0
+        xdg-terminal-exec -- sh -c "sudo pacman -Rns $pkg; echo; read -rp 'Press Enter to close'"
+    else
+        local aur_helper cmd
+        aur_helper=$(_aur_helper)
+        if [[ "$aur" == "true" ]]; then
+            if [[ -z "$aur_helper" ]]; then
+                notify-send "NaruMa" "AUR helper required — install paru or yay first"
+                return
+            fi
+            cmd="$aur_helper -S --needed $pkg"
+        else
+            cmd="sudo pacman -S --needed $pkg"
+        fi
+        xdg-terminal-exec -- sh -c "$cmd; echo; read -rp 'Press Enter to close'"
+    fi
+
+    # Refresh walker app index after install/remove
+    pkill elephant 2>/dev/null || true
+    sleep 0.3
+    setsid elephant &>/dev/null &
+}
+
+# ── Categories ────────────────────────────────────────────────────────────────
+
+show_browsers() {
+    local opts
+    opts="$(mark firefox          'Firefox')\n\
+$(mark brave-browser      'Brave')\n\
+$(mark chromium           'Chromium')\n\
+$(mark zen-browser-bin    'Zen Browser (AUR)')"
+    case $(menu "Browsers" "$opts") in
+        *Firefox*)  install_pkg firefox ;;
+        *Brave*)    install_pkg brave-browser true ;;
+        *Chromium*) install_pkg chromium ;;
+        *Zen*)      install_pkg zen-browser-bin true ;;
+    esac
+}
+
+show_terminals() {
+    local opts
+    opts="$(mark alacritty 'Alacritty')\n\
+$(mark kitty    'Kitty')\n\
+$(mark ghostty  'Ghostty')\n\
+$(mark wezterm  'WezTerm (AUR)')\n\
+$(mark foot     'Foot')"
+    case $(menu "Terminals" "$opts") in
+        *Alacritty*) install_pkg alacritty ;;
+        *Kitty*)     install_pkg kitty ;;
+        *Ghostty*)   install_pkg ghostty ;;
+        *WezTerm*)   install_pkg wezterm true ;;
+        *Foot*)      install_pkg foot ;;
+    esac
+}
+
+show_editors() {
+    local opts
+    opts="$(mark neovim                    'Neovim')\n\
+$(mark visual-studio-code-bin  'VS Code (AUR)')\n\
+$(mark zed                     'Zed (AUR)')\n\
+$(mark helix                   'Helix')\n\
+$(mark gedit                   'Text Editor')"
+    case $(menu "Editors" "$opts") in
+        *Neovim*)  install_pkg neovim ;;
+        *Code*)    install_pkg visual-studio-code-bin true ;;
+        *Zed*)     install_pkg zed true ;;
+        *Helix*)   install_pkg helix ;;
+        *Text*)    install_pkg gedit ;;
+    esac
+}
+
+show_files() {
+    local opts
+    opts="$(mark nautilus 'Nautilus')\n\
+$(mark thunar   'Thunar')\n\
+$(mark dolphin  'Dolphin')\n\
+$(mark nemo     'Nemo')\n\
+$(mark ranger   'Ranger (TUI)')\n\
+$(mark yazi     'Yazi (TUI)')"
+    case $(menu "File managers" "$opts") in
+        *Nautilus*) install_pkg nautilus ;;
+        *Thunar*)   install_pkg thunar ;;
+        *Dolphin*)  install_pkg dolphin ;;
+        *Nemo*)     install_pkg nemo ;;
+        *Ranger*)   install_pkg ranger ;;
+        *Yazi*)     install_pkg yazi ;;
+    esac
+}
+
+show_media() {
+    local opts
+    opts="$(mark mpv       'MPV')\n\
+$(mark vlc       'VLC')\n\
+$(mark spotify   'Spotify (AUR)')\n\
+$(mark gimp      'GIMP')\n\
+$(mark inkscape  'Inkscape')\n\
+$(mark krita     'Krita')\n\
+$(mark obs-studio 'OBS Studio')"
+    case $(menu "Media" "$opts") in
+        *MPV*)      install_pkg mpv ;;
+        *VLC*)      install_pkg vlc ;;
+        *Spotify*)  install_pkg spotify true ;;
+        *GIMP*)     install_pkg gimp ;;
+        *Inkscape*) install_pkg inkscape ;;
+        *Krita*)    install_pkg krita ;;
+        *OBS*)      install_pkg obs-studio ;;
+    esac
+}
+
+show_communication() {
+    local opts
+    opts="$(mark discord          'Discord (AUR)')\n\
+$(mark telegram-desktop  'Telegram')\n\
+$(mark signal-desktop    'Signal (AUR)')\n\
+$(mark slack-desktop     'Slack (AUR)')\n\
+$(mark thunderbird       'Thunderbird')"
+    case $(menu "Communication" "$opts") in
+        *Discord*)  install_pkg discord true ;;
+        *Telegram*) install_pkg telegram-desktop ;;
+        *Signal*)   install_pkg signal-desktop true ;;
+        *Slack*)    install_pkg slack-desktop true ;;
+        *Thunder*)  install_pkg thunderbird ;;
+    esac
+}
+
+show_development() {
+    local opts
+    opts="$(mark btop         'btop (monitor)')\n\
+$(mark docker       'Docker')\n\
+$(mark lazydocker   'Lazydocker (AUR)')\n\
+$(mark lazygit      'Lazygit')\n\
+$(mark git-delta    'Delta (diff pager)')\n\
+$(mark github-cli   'GitHub CLI')\n\
+$(mark postman-bin  'Postman (AUR)')\n\
+$(mark dbeaver      'DBeaver (AUR)')"
+    case $(menu "Development" "$opts") in
+        *btop*)      install_pkg btop ;;
+        *Docker*)    install_pkg docker ;;
+        *Lazydocker*) install_pkg lazydocker true ;;
+        *Lazygit*)   install_pkg lazygit ;;
+        *Delta*)     install_pkg git-delta ;;
+        *GitHub*)    install_pkg github-cli ;;
+        *Postman*)   install_pkg postman-bin true ;;
+        *DBeaver*)   install_pkg dbeaver true ;;
+    esac
+}
+
+show_productivity() {
+    local opts
+    opts="$(mark obsidian          'Obsidian (AUR)')\n\
+$(mark libreoffice-still  'LibreOffice')\n\
+$(mark zathura            'Zathura (PDF)')\n\
+$(mark evince             'Evince (PDF)')\n\
+$(mark keepassxc          'KeePassXC')\n\
+$(mark calibre            'Calibre')"
+    case $(menu "Productivity" "$opts") in
+        *Obsidian*)    install_pkg obsidian true ;;
+        *LibreOffice*) install_pkg libreoffice-still ;;
+        *Zathura*)     install_pkg zathura ;;
+        *Evince*)      install_pkg evince ;;
+        *KeePass*)     install_pkg keepassxc ;;
+        *Calibre*)     install_pkg calibre ;;
+    esac
+}
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+
+show_main() {
+    case $(menu "Install Apps" \
+        "  Browsers\n  Terminals\n  Editors\n  Files\n  Media\n  Communication\n  Development\n  Productivity" \
+        320) in
+        *Browsers*)      show_browsers ;;
+        *Terminals*)     show_terminals ;;
+        *Editors*)       show_editors ;;
+        *Files*)         show_files ;;
+        *Media*)         show_media ;;
+        *Communication*) show_communication ;;
+        *Development*)   show_development ;;
+        *Productivity*)  show_productivity ;;
+    esac
+}
+
+case "${1:-}" in
+    browsers)      show_browsers ;;
+    terminals)     show_terminals ;;
+    editors)       show_editors ;;
+    files)         show_files ;;
+    media)         show_media ;;
+    communication) show_communication ;;
+    development)   show_development ;;
+    productivity)  show_productivity ;;
+    *)             show_main ;;
+esac
