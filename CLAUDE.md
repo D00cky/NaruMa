@@ -4,40 +4,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-NaruMa — a Hyprland theme/config set inspired by [Omarchy](https://github.com/basecamp/omarchy), using the Catppuccin Mocha color palette. This is a pure config project — no compiled code, no build step.
+NaruMa — a Hyprland theme/config set inspired by [Omarchy](https://github.com/basecamp/omarchy). Pure config project — no compiled code, no build step. Arch Linux / pacman only.
 
 ## Config structure
 
 ```
 hyprland/       # Hyprland WM config (symlinked to ~/.config/hypr/)
   hyprland.conf   # entry point — sources all other files
-  looknfeel.conf  # colors, gaps, animations, blur, dwindle layout
+  looknfeel.conf  # gaps, animations, blur, dwindle layout (no colors here)
   keybindings.conf
   input.conf
   autostart.conf
   monitors.conf   # edit this per-machine
   rules.conf      # window rules + opacity
-waybar/         # status bar
-  config.jsonc
-  style.css
-walker/         # GTK4 app launcher (primary)
-  config.toml
-  themes/naruma/layout.xml
-  themes/naruma/style.css
-mako/           # notifications
-  config
-rofi/           # fallback launcher (used if walker is not installed)
-  config.rasi
-hyprlock/       # lock screen
-  hyprlock.conf
-hypridle/       # idle/suspend policy
-  hypridle.conf
-alacritty/      # terminal
-  alacritty.toml  # font (JetBrainsMono Nerd Font 12) + Catppuccin Mocha colors
-bin/            # scripts (copied to ~/.config/naruma/bin/)
+waybar/           # status bar (config.jsonc + style.css)
+walker/           # GTK4 app launcher (config.toml + themes/naruma/)
+mako/             # notifications (config — symlinked from active theme)
+rofi/             # fallback launcher
+hyprlock/         # lock screen (symlinked from active theme)
+hypridle/         # idle/suspend policy
+alacritty/        # terminal (alacritty.toml + naruma-colors.toml symlink)
+themes/           # color palettes — see Theme system below
+bin/              # scripts (copied to ~/.config/naruma/bin/ on install)
   naruma-menu         # system menu (Super + Alt + Space)
   naruma-launch-apps  # app launcher wrapper (Super + Space)
-install.sh      # installs packages + symlinks configs
+  naruma-theme        # theme switcher
+  naruma-check        # pre-flight config checker
+install.sh        # installs packages + symlinks configs
+uninstall.sh      # removes symlinks and state files
 ```
 
 ## Deploy
@@ -48,11 +42,54 @@ bash install.sh --no-packages  # skip pacman/AUR installs
 hyprctl reload               # apply after install
 ```
 
-Config files are symlinked from the repo — edit them in place and changes take effect immediately. Hyprland requires `hyprctl reload`; Waybar reloads on CSS save; Mako needs `makoctl reload`.
+Config files are symlinked from the repo — edit them in place and changes take effect immediately.
+
+| Component | Reload command |
+|---|---|
+| Hyprland | `hyprctl reload` |
+| Waybar | `pkill -SIGUSR2 waybar` |
+| Mako | `makoctl reload` |
+
+## Theme system
+
+Themes live in `themes/<name>/` — each contains 6 files:
+
+```
+colors.conf     # Hyprland $color variables (sourced via naruma-colors.conf)
+colors.css      # GTK CSS @define-color (Waybar + Walker)
+colors.toml     # Alacritty [colors.*] sections
+colors.rasi     # Rofi * {} color block
+mako.config     # Full mako config
+hyprlock.conf   # Full hyprlock config
+```
+
+`naruma-theme` works by replacing a set of symlinks that point into the active theme directory. The active theme name is stored in `~/.config/naruma/theme`; the repo path is stored in `~/.config/naruma/repo` (written by `install.sh`).
+
+Theme color symlinks (replaced on every `naruma-theme <name>` call):
+
+| Symlink | Points to |
+|---|---|
+| `~/.config/hypr/naruma-colors.conf` | `themes/<name>/colors.conf` |
+| `~/.config/waybar/naruma-colors.css` | `themes/<name>/colors.css` |
+| `~/.config/walker/themes/naruma/naruma-colors.css` | `themes/<name>/colors.css` |
+| `~/.config/alacritty/naruma-colors.toml` | `themes/<name>/colors.toml` |
+| `~/.config/rofi/naruma-colors.rasi` | `themes/<name>/colors.rasi` |
+| `~/.config/mako/config` | `themes/<name>/mako.config` |
+| `~/.config/hypr/hyprlock.conf` | `themes/<name>/hyprlock.conf` |
+
+Shipped themes: `catppuccin-mocha` (default), `sakura`, `cyberpunk`, `pokemon`.
+
+```sh
+naruma-theme sakura   # apply theme (reloads hyprland, waybar, mako)
+naruma-theme          # open picker (walker/rofi dmenu)
+naruma-theme list     # list themes with active marker
+```
+
+To add a custom theme, create `themes/my-theme/` with all 6 files (use an existing theme as template), then run `naruma-theme my-theme`.
 
 ## Bin scripts
 
-`bin/naruma-menu` is a hierarchical system menu using walker `--dmenu` (falls back to rofi). It can be invoked directly with a submenu name to open that submenu and exit on dismiss:
+`bin/naruma-menu` — hierarchical system menu using walker `--dmenu` (falls back to rofi):
 
 ```sh
 naruma-menu system    # lock/suspend/reboot/shutdown/logout
@@ -61,18 +98,13 @@ naruma-menu toggle    # bar, nightlight, gaps, idle lock
 naruma-menu config    # open config files in $EDITOR
 ```
 
-`bin/naruma-launch-apps` starts the walker service (and elephant data provider) if not running, then opens the launcher.
+`bin/naruma-check` — pre-flight checker; validates symlinks, active theme, fonts, Hyprland version, and config errors after a live reload. Exit 0 = clean, 1 = errors:
 
-## Color palette — Catppuccin Mocha
+```sh
+naruma-check
+```
 
-Colors are defined at the top of `hyprland/looknfeel.conf` and `waybar/style.css`. To change the palette, replace hex values in those two files — everything else inherits from them.
-
-Key values:
-- Background: `#1e1e2e`, Mantle: `#181825`, Surface: `#313244`
-- Text: `#cdd6f4`, Subtext: `#bac2de`
-- Blue (accent): `#89b4fa`, Teal: `#94e2d5`, Green: `#a6e3a1`
-- Active border: blue→teal 45deg gradient
-- Inactive border: `rgba(45475aaa)`
+`bin/naruma-launch-apps` — starts the walker service (and elephant data provider) if not running, then opens the launcher.
 
 ## Key bindings summary
 
