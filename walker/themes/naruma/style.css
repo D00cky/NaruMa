@@ -1,15 +1,8 @@
-/* NaruMa — Walker theme (Catppuccin Mocha) */
+/* NaruMa — Walker theme */
 
-@define-color base     #1e1e2e;
-@define-color mantle   #181825;
-@define-color surface0 #313244;
-@define-color surface1 #45475a;
-@define-color text     #cdd6f4;
-@define-color subtext1 #bac2de;
-@define-color overlay1 #7f849c;
-@define-color blue     #89b4fa;
-@define-color teal     #94e2d5;
-@define-color border   @surface1;
+@import url("naruma-colors.css");
+
+@define-color border        @surface1;
 @define-color selected-text @base;
 
 * { all: unset; }

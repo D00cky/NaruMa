@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# NaruMa — theme switcher
+# Usage: naruma-theme [<name> | list]
+
+set -euo pipefail
+
+NARUMA="$(cat "$HOME/.config/naruma/repo" 2>/dev/null || echo "$HOME/.config/naruma")"
+THEMES_DIR="$NARUMA/themes"
+CONFIG="$HOME/.config"
+STATE="$HOME/.config/naruma/theme"
+
+current_theme() {
+    cat "$STATE" 2>/dev/null || echo "catppuccin-mocha"
+}
+
+list_themes() {
+    local current
+    current=$(current_theme)
+    echo "Available themes:"
+    for d in "$THEMES_DIR"/*/; do
+        local name
+        name="$(basename "$d")"
+        if [[ $name == "$current" ]]; then
+            echo "  * $name (active)"
+        else
+            echo "    $name"
+        fi
+    done
+}
+
+apply_theme() {
+    local theme="$1"
+    local dir="$THEMES_DIR/$theme"
+
+    if [[ ! -d "$dir" ]]; then
+        echo "Error: theme '$theme' not found."
+        echo ""
+        list_themes
+        exit 1
+    fi
+
+    ln -sfn "$dir/colors.conf"   "$CONFIG/hypr/naruma-colors.conf"
+    ln -sfn "$dir/colors.css"    "$CONFIG/waybar/naruma-colors.css"
+    ln -sfn "$dir/colors.css"    "$CONFIG/walker/themes/naruma/naruma-colors.css"
+    ln -sfn "$dir/colors.toml"   "$CONFIG/alacritty/naruma-colors.toml"
+    ln -sfn "$dir/colors.rasi"   "$CONFIG/rofi/naruma-colors.rasi"
+    ln -sfn "$dir/mako.config"   "$CONFIG/mako/config"
+    ln -sfn "$dir/hyprlock.conf" "$CONFIG/hypr/hyprlock.conf"
+
+    echo "$theme" > "$STATE"
+
+    # Reload affected services
+    hyprctl reload 2>/dev/null || true
+    pkill -SIGUSR2 waybar 2>/dev/null || true
+    makoctl reload 2>/dev/null || true
+
+    echo "Theme: $theme"
+}
+
+pick_theme() {
+    local options=""
+    local current
+    current=$(current_theme)
+    for d in "$THEMES_DIR"/*/; do
+        local name
+        name="$(basename "$d")"
+        if [[ $name == "$current" ]]; then
+            options+="* $name\n"
+        else
+            options+="  $name\n"
+        fi
+    done
+
+    local chosen
+    if command -v walker &>/dev/null; then
+        chosen=$(echo -e "$options" | walker --dmenu --width 320 --minheight 1 --maxheight 360 -p "Theme…" 2>/dev/null | sed 's/^[* ]*//')
+    else
+        chosen=$(echo -e "$options" | rofi -dmenu -p "Theme" 2>/dev/null | sed 's/^[* ]*//')
+    fi
+
+    [[ -n $chosen ]] && apply_theme "$chosen"
+}
+
+case "${1:-}" in
+    list) list_themes ;;
+    "")   pick_theme ;;
+    *)    apply_theme "$1" ;;
+esac

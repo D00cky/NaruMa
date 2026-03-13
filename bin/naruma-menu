@@ -128,12 +128,13 @@ show_config_menu() {
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 show_main_menu() {
-    case $(menu "NaruMa" "  Apps\n  System\n  Capture\n󰔎  Toggle\n  Config" 295) in
+    case $(menu "NaruMa" "  Apps\n  System\n  Capture\n󰔎  Toggle\n  Config\n  Theme" 295) in
         *Apps*)    _launch_walker ;;
         *System*)  show_system_menu ;;
         *Capture*) show_capture_menu ;;
         *Toggle*)  show_toggle_menu ;;
         *Config*)  show_config_menu ;;
+        *Theme*)   naruma-theme ;;
     esac
 }
 

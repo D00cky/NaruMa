@@ -1,0 +1,17 @@
+/* NaruMa — Pokémon colors (Rofi) */
+
+* {
+    base:     #1a1a2e;
+    mantle:   #14141f;
+    crust:    #0c0c14;
+    text:     #e8f0f5;
+    subtext1: #b0c8d8;
+    overlay1: #6080a0;
+    surface0: #242440;
+    surface1: #2e3860;
+    blue:     #f7d51d;
+    green:    #a5d6a7;
+    teal:     #4fc3f7;
+    red:      #ef5350;
+    mauve:    #f48fb1;
+}

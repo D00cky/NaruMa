@@ -1,0 +1,17 @@
+/* NaruMa — Cyberpunk colors (Rofi) */
+
+* {
+    base:     #0d0d1a;
+    mantle:   #080810;
+    crust:    #040408;
+    text:     #e0e0ff;
+    subtext1: #a0a0d0;
+    overlay1: #5a5a8a;
+    surface0: #1a1a2e;
+    surface1: #16213e;
+    blue:     #00f5ff;
+    green:    #39ff14;
+    teal:     #ff00ff;
+    red:      #ff0055;
+    mauve:    #ff6ec7;
+}

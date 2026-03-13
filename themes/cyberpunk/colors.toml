@@ -1,0 +1,69 @@
+# NaruMa — Cyberpunk colors (Alacritty)
+
+[colors.primary]
+background        = "#0d0d1a"
+foreground        = "#e0e0ff"
+dim_foreground    = "#5a5a8a"
+bright_foreground = "#e0e0ff"
+
+[colors.cursor]
+text   = "#0d0d1a"
+cursor = "#00f5ff"
+
+[colors.vi_mode_cursor]
+text   = "#0d0d1a"
+cursor = "#bc13fe"
+
+[colors.search.matches]
+foreground = "#0d0d1a"
+background = "#a0a0d0"
+
+[colors.search.focused_match]
+foreground = "#0d0d1a"
+background = "#39ff14"
+
+[colors.footer_bar]
+foreground = "#0d0d1a"
+background = "#a0a0d0"
+
+[colors.hints.start]
+foreground = "#0d0d1a"
+background = "#f5e642"
+
+[colors.hints.end]
+foreground = "#0d0d1a"
+background = "#a0a0d0"
+
+[colors.selection]
+text       = "#0d0d1a"
+background = "#00f5ff"
+
+[colors.normal]
+black   = "#16213e"
+red     = "#ff0055"
+green   = "#39ff14"
+yellow  = "#f5e642"
+blue    = "#00f5ff"
+magenta = "#ff00ff"
+cyan    = "#00e5ff"
+white   = "#a0a0d0"
+
+[colors.bright]
+black   = "#1e2d4f"
+red     = "#ff3377"
+green   = "#66ff44"
+yellow  = "#ffee66"
+blue    = "#44ffff"
+magenta = "#ff44ff"
+cyan    = "#44ffff"
+white   = "#e0e0ff"
+
+[colors.dim]
+black   = "#0d1620"
+red     = "#cc0044"
+green   = "#2dcc10"
+yellow  = "#c4b835"
+blue    = "#00c5cc"
+magenta = "#cc00cc"
+cyan    = "#00b8cc"
+white   = "#808080"

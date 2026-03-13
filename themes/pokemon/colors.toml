@@ -1,0 +1,69 @@
+# NaruMa — Pokémon colors (Alacritty)
+
+[colors.primary]
+background        = "#1a1a2e"
+foreground        = "#e8f0f5"
+dim_foreground    = "#6080a0"
+bright_foreground = "#e8f0f5"
+
+[colors.cursor]
+text   = "#1a1a2e"
+cursor = "#f7d51d"
+
+[colors.vi_mode_cursor]
+text   = "#1a1a2e"
+cursor = "#4fc3f7"
+
+[colors.search.matches]
+foreground = "#1a1a2e"
+background = "#b0c8d8"
+
+[colors.search.focused_match]
+foreground = "#1a1a2e"
+background = "#a5d6a7"
+
+[colors.footer_bar]
+foreground = "#1a1a2e"
+background = "#b0c8d8"
+
+[colors.hints.start]
+foreground = "#1a1a2e"
+background = "#ffe57f"
+
+[colors.hints.end]
+foreground = "#1a1a2e"
+background = "#b0c8d8"
+
+[colors.selection]
+text       = "#1a1a2e"
+background = "#f7d51d"
+
+[colors.normal]
+black   = "#2e3860"
+red     = "#ef5350"
+green   = "#a5d6a7"
+yellow  = "#f7d51d"
+blue    = "#4fc3f7"
+magenta = "#ce93d8"
+cyan    = "#4dd0e1"
+white   = "#b0c8d8"
+
+[colors.bright]
+black   = "#3d4a7a"
+red     = "#ff6b6b"
+green   = "#c8e6c9"
+yellow  = "#fff176"
+blue    = "#80d8ff"
+magenta = "#e1bee7"
+cyan    = "#80deea"
+white   = "#e8f0f5"
+
+[colors.dim]
+black   = "#1e2440"
+red     = "#bf4340"
+green   = "#7aa87c"
+yellow  = "#c4aa17"
+blue    = "#3d9bc4"
+magenta = "#a373b0"
+cyan    = "#3aa8b8"
+white   = "#8090a8"

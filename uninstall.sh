@@ -16,6 +16,20 @@ info() { echo ""; echo "▸ $*"; }
 
 # ── Symlink manifest (must match install.sh) ──────────────────────────────────
 
+REPO="$(cat "$HOME/.config/naruma/repo" 2>/dev/null || echo "$REPO")"
+
+# All possible theme color files (any theme could be active)
+_theme_srcs=()
+_theme_dsts=(
+    hypr/naruma-colors.conf
+    waybar/naruma-colors.css
+    walker/themes/naruma/naruma-colors.css
+    alacritty/naruma-colors.toml
+    rofi/naruma-colors.rasi
+    mako/config
+    hypr/hyprlock.conf
+)
+
 LINK_SRCS=(
     hyprland/hyprland.conf
     hyprland/looknfeel.conf
@@ -24,11 +38,9 @@ LINK_SRCS=(
     hyprland/keybindings.conf
     hyprland/rules.conf
     hyprland/monitors.conf
-    hyprlock/hyprlock.conf
     hypridle/hypridle.conf
     waybar/config.jsonc
     waybar/style.css
-    mako/config
     rofi/config.rasi
     walker/config.toml
     walker/themes/naruma/layout.xml
@@ -44,11 +56,9 @@ LINK_DSTS=(
     hypr/keybindings.conf
     hypr/rules.conf
     hypr/monitors.conf
-    hypr/hyprlock.conf
     hypr/hypridle.conf
     waybar/config.jsonc
     waybar/style.css
-    mako/config
     rofi/config.rasi
     walker/config.toml
     walker/themes/naruma/layout.xml
@@ -81,6 +91,26 @@ uninstall_config() {
             log "Skipping $dst (not a symlink)"
         fi
     done
+
+    # Remove theme color symlinks (point into REPO/themes/, not REPO root)
+    info "Removing theme color symlinks…"
+    for dst in "${_theme_dsts[@]}"; do
+        local full="$CONFIG/$dst"
+        if [[ -L "$full" ]]; then
+            local target
+            target="$(readlink "$full")"
+            if [[ $target == "$REPO/themes/"* ]]; then
+                rm "$full"
+                log "Removed $full"
+                [[ -e "$full.bak" ]] && mv "$full.bak" "$full" && log "Restored $full.bak"
+            else
+                log "Skipping $full (not a NaruMa theme symlink)"
+            fi
+        fi
+    done
+
+    # Clean up state files
+    rm -f "$HOME/.config/naruma/repo" "$HOME/.config/naruma/theme"
 
     # Clean up empty walker theme dir
     local walker_theme="$CONFIG/walker/themes/naruma"

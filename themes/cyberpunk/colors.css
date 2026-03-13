@@ -1,0 +1,18 @@
+/* NaruMa — Cyberpunk colors (GTK CSS) */
+
+@define-color base     #0d0d1a;
+@define-color mantle   #080810;
+@define-color crust    #040408;
+@define-color text     #e0e0ff;
+@define-color subtext1 #a0a0d0;
+@define-color overlay1 #5a5a8a;
+@define-color surface0 #1a1a2e;
+@define-color surface1 #16213e;
+@define-color blue     #00f5ff;
+@define-color lavender #bc13fe;
+@define-color green    #39ff14;
+@define-color teal     #ff00ff;
+@define-color mauve    #ff6ec7;
+@define-color red      #ff0055;
+@define-color peach    #ff6d00;
+@define-color yellow   #f5e642;

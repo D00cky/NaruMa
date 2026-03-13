@@ -1,0 +1,18 @@
+/* NaruMa — Sakura colors (GTK CSS) */
+
+@define-color base     #1a0e1e;
+@define-color mantle   #140b17;
+@define-color crust    #0e0810;
+@define-color text     #f2d4e0;
+@define-color subtext1 #d4aabb;
+@define-color overlay1 #8b6e92;
+@define-color surface0 #2d1f33;
+@define-color surface1 #3d2b44;
+@define-color blue     #f48fb1;
+@define-color lavender #f8bbd0;
+@define-color green    #80cbc4;
+@define-color teal     #ce93d8;
+@define-color mauve    #b39ddb;
+@define-color red      #ef9a9a;
+@define-color peach    #ffcc80;
+@define-color yellow   #fff176;

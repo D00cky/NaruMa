@@ -1,0 +1,18 @@
+/* NaruMa — Pokémon colors (GTK CSS) */
+
+@define-color base     #1a1a2e;
+@define-color mantle   #14141f;
+@define-color crust    #0c0c14;
+@define-color text     #e8f0f5;
+@define-color subtext1 #b0c8d8;
+@define-color overlay1 #6080a0;
+@define-color surface0 #242440;
+@define-color surface1 #2e3860;
+@define-color blue     #f7d51d;
+@define-color lavender #ce93d8;
+@define-color green    #a5d6a7;
+@define-color teal     #4fc3f7;
+@define-color mauve    #f48fb1;
+@define-color red      #ef5350;
+@define-color peach    #ffcc80;
+@define-color yellow   #ffe57f;

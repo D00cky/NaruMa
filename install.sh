@@ -35,7 +35,10 @@ link() {
 # ── Symlink manifest ───────────────────────────────────────────────────────────
 # Parallel arrays: LINK_SRCS (relative to REPO) and LINK_DSTS (relative to CONFIG)
 
+DEFAULT_THEME="catppuccin-mocha"
+
 LINK_SRCS=(
+    # Hyprland
     hyprland/hyprland.conf
     hyprland/looknfeel.conf
     hyprland/input.conf
@@ -43,19 +46,30 @@ LINK_SRCS=(
     hyprland/keybindings.conf
     hyprland/rules.conf
     hyprland/monitors.conf
-    hyprlock/hyprlock.conf
     hypridle/hypridle.conf
+    # Waybar
     waybar/config.jsonc
     waybar/style.css
-    mako/config
+    # Rofi
     rofi/config.rasi
+    # Walker
     walker/config.toml
     walker/themes/naruma/layout.xml
     walker/themes/naruma/style.css
+    # Alacritty
     alacritty/alacritty.toml
+    # Theme color files (default: catppuccin-mocha)
+    themes/$DEFAULT_THEME/colors.conf
+    themes/$DEFAULT_THEME/colors.css
+    themes/$DEFAULT_THEME/colors.css
+    themes/$DEFAULT_THEME/colors.toml
+    themes/$DEFAULT_THEME/colors.rasi
+    themes/$DEFAULT_THEME/mako.config
+    themes/$DEFAULT_THEME/hyprlock.conf
 )
 
 LINK_DSTS=(
+    # Hyprland
     hypr/hyprland.conf
     hypr/looknfeel.conf
     hypr/input.conf
@@ -63,16 +77,26 @@ LINK_DSTS=(
     hypr/keybindings.conf
     hypr/rules.conf
     hypr/monitors.conf
-    hypr/hyprlock.conf
     hypr/hypridle.conf
+    # Waybar
     waybar/config.jsonc
     waybar/style.css
-    mako/config
+    # Rofi
     rofi/config.rasi
+    # Walker
     walker/config.toml
     walker/themes/naruma/layout.xml
     walker/themes/naruma/style.css
+    # Alacritty
     alacritty/alacritty.toml
+    # Theme color files
+    hypr/naruma-colors.conf
+    waybar/naruma-colors.css
+    walker/themes/naruma/naruma-colors.css
+    alacritty/naruma-colors.toml
+    rofi/naruma-colors.rasi
+    mako/config
+    hypr/hyprlock.conf
 )
 
 # ── Packages ──────────────────────────────────────────────────────────────────
@@ -208,6 +232,14 @@ install_config() {
         fi
         link "$REPO/${LINK_SRCS[$i]}" "$CONFIG/${LINK_DSTS[$i]}"
     done
+
+    # Write state files so naruma-theme can locate the repo
+    mkdir -p "$CONFIG/naruma"
+    echo "$REPO" > "$CONFIG/naruma/repo"
+    if [[ ! -f "$CONFIG/naruma/theme" ]]; then
+        echo "$DEFAULT_THEME" > "$CONFIG/naruma/theme"
+    fi
+    log "Active theme: $(cat "$CONFIG/naruma/theme")"
 }
 
 # ── Wallpaper ─────────────────────────────────────────────────────────────────

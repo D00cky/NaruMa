@@ -1,0 +1,17 @@
+/* NaruMa — Sakura colors (Rofi) */
+
+* {
+    base:     #1a0e1e;
+    mantle:   #140b17;
+    crust:    #0e0810;
+    text:     #f2d4e0;
+    subtext1: #d4aabb;
+    overlay1: #8b6e92;
+    surface0: #2d1f33;
+    surface1: #3d2b44;
+    blue:     #f48fb1;
+    green:    #80cbc4;
+    teal:     #ce93d8;
+    red:      #ef9a9a;
+    mauve:    #b39ddb;
+}

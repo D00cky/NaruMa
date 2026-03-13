@@ -1,0 +1,69 @@
+# NaruMa — Sakura colors (Alacritty)
+
+[colors.primary]
+background        = "#1a0e1e"
+foreground        = "#f2d4e0"
+dim_foreground    = "#8b6e92"
+bright_foreground = "#f2d4e0"
+
+[colors.cursor]
+text   = "#1a0e1e"
+cursor = "#f48fb1"
+
+[colors.vi_mode_cursor]
+text   = "#1a0e1e"
+cursor = "#f8bbd0"
+
+[colors.search.matches]
+foreground = "#1a0e1e"
+background = "#d4aabb"
+
+[colors.search.focused_match]
+foreground = "#1a0e1e"
+background = "#80cbc4"
+
+[colors.footer_bar]
+foreground = "#1a0e1e"
+background = "#d4aabb"
+
+[colors.hints.start]
+foreground = "#1a0e1e"
+background = "#fff176"
+
+[colors.hints.end]
+foreground = "#1a0e1e"
+background = "#d4aabb"
+
+[colors.selection]
+text       = "#1a0e1e"
+background = "#f48fb1"
+
+[colors.normal]
+black   = "#3d2b44"
+red     = "#ef9a9a"
+green   = "#80cbc4"
+yellow  = "#fff176"
+blue    = "#f48fb1"
+magenta = "#b39ddb"
+cyan    = "#ce93d8"
+white   = "#d4aabb"
+
+[colors.bright]
+black   = "#5a3d66"
+red     = "#f5b5c0"
+green   = "#9ed9d0"
+yellow  = "#fff9a0"
+blue    = "#f8b8d0"
+magenta = "#c9b8eb"
+cyan    = "#ddb8e8"
+white   = "#f2d4e0"
+
+[colors.dim]
+black   = "#2d1f33"
+red     = "#c07880"
+green   = "#60a0a0"
+yellow  = "#c0c060"
+blue    = "#c07090"
+magenta = "#8878b0"
+cyan    = "#a078b0"
+white   = "#a08898"
